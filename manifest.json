@@ -1,0 +1,231 @@
+{
+  "manifest_version": 3,
+  "name": "VideoGrab",
+  "version": "1.0.0",
+  "description": "Detecte, processe e baixe vídeos e áudios (HTTP, HLS/m3u8, DASH/mpd, YouTube, Vimeo e mais) sem limites e com remuxing FFmpeg local.",
+  "author": "VideoGrab",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "VideoGrab — Captura e Download de Mídia",
+    "default_popup": "ui/popup.html"
+  },
+  "side_panel": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_path": "ui/sidebar.html",
+    "default_title": "VideoGrab"
+  },
+  "background": {
+    "service_worker": "service/main.js",
+    "type": "module"
+  },
+  "sandbox": {
+    "pages": [
+      "factory/sandbox.html"
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval' 'unsafe-inline'"
+  },
+  "permissions": [
+    "tabs",
+    "offscreen",
+    "downloads",
+    "sidePanel",
+    "webRequest",
+    "webNavigation",
+    "scripting",
+    "declarativeNetRequest",
+    "storage",
+    "notifications",
+    "contextMenus",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Up",
+        "mac": "Ctrl+Shift+Up"
+      }
+    },
+    "quick-download": {
+      "description": "Baixar mídia principal da aba ativa",
+      "suggested_key": {
+        "default": "Alt+Down",
+        "mac": "Ctrl+Shift+Down"
+      }
+    }
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "js": ["injected/media_detector.js"],
+      "matches": ["http://*/*", "https://*/*"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/youtube.js"],
+      "matches": ["*://*.youtube.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/youtube_untrusted.js"],
+      "matches": ["*://*.youtube.com/*"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/vimeo.js"],
+      "matches": ["*://*.vimeo.com/*"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/vimeo_untrusted.js"],
+      "matches": ["*://*.vimeo.com/*"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/facebook.js"],
+      "matches": ["*://*.facebook.com/*", "*://*.instagram.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/ok.js"],
+      "matches": ["*://*.ok.ru/*", "*://*.m.ok.ru/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/vk.js"],
+      "matches": ["*://*.vk.com/*", "*://*.vk.ru/*", "*://*.vkvideo.ru/*", "*://live.vkvideo.ru/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/canva.js"],
+      "matches": ["*://*.canva.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/iq.js"],
+      "matches": ["*://*.iq.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/iq_untrusted.js"],
+      "matches": ["*://*.iq.com/*"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/twitcasting.js"],
+      "matches": ["*://*.twitcasting.tv/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/bilibili.js"],
+      "matches": ["*://*.bilibili.tv/*", "*://*.bilibili.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/bilibili_untrusted.js"],
+      "matches": ["*://*.bilibili.tv/*", "*://*.bilibili.com/*"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/taiav.js"],
+      "matches": ["*://*.taiav.com/*"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/osmosis.js"],
+      "matches": ["*://*.osmosis.org/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/kick.js"],
+      "matches": ["*://*.kick.com/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/chaturbate.js"],
+      "matches": ["*://*.chaturbate.com/*", "*://*.chaturbate.eu/*", "*://*.chaturbate.global/*"],
+      "run_at": "document_end",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/xgplayer_crypto.js"],
+      "matches": ["*://*.91porna.com/*", "*://*.9n6gyt.umydsfs.cc/*"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/xgplayer_crypto_untrusted.js"],
+      "matches": ["*://*.91porna.com/*", "*://*.9n6gyt.umydsfs.cc/*"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/javrank.js"],
+      "matches": ["*://*.javrank.com/*"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "all_frames": true,
+      "js": ["injected/javrank_untrusted.js"],
+      "matches": ["*://*.javrank.com/*"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

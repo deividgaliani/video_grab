@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>VideoGrab Sandbox Evaluator</title>
+</head>
+<body>
+  <script>
+    window.addEventListener("message", (event) => {
+      const { type, uid, code } = event.data || {};
+      if (type !== "EVAL_CODE" || !uid) return;
+      try {
+        const result = (0, eval)(code);
+        Promise.resolve(result)
+          .then((resolved) => {
+            event.source.postMessage({ type: "EVAL_RESULT", uid, success: resolved }, "*");
+          })
+          .catch((err) => {
+            event.source.postMessage({
+              type: "EVAL_RESULT",
+              uid,
+              error: err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+            }, "*");
+          });
+      } catch (err) {
+        event.source.postMessage({
+          type: "EVAL_RESULT",
+          uid,
+          error: err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+        }, "*");
+      }
+    });
+  </script>
+</body>
+</html>
