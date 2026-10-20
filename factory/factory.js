@@ -9,7 +9,8 @@ const CHANNELS = {
   FromWorkerToService: 3
 };
 
-const workerUrl = chrome.runtime.getURL("/download_worker/main.js");
+// bootstrap.js instala os hooks de fetch (cabeçalhos por requisição) e então carrega main.js
+const workerUrl = chrome.runtime.getURL("/download_worker/bootstrap.js");
 const downloadWorker = new Worker(workerUrl, { type: "module" });
 
 downloadWorker.addEventListener("error", (err) => {

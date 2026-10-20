@@ -5,7 +5,7 @@
  */
 
 import { Some, None, hashString } from "./serde.js";
-import { addSessionHeaderRules, removeSessionHeaderRules, extractBrowserOnlyHeaders } from "./dnr_headers.js";
+import { addSessionHeaderRules, removeSessionHeaderRules, extractBrowserOnlyHeaders, buildFetchHeaders } from "./dnr_headers.js";
 
 const requestHeadersCache = new Map(); // requestId -> { timestamp, headers }
 const processedUrlsPerTab = new Map(); // tabId -> Set<string>
@@ -393,8 +393,12 @@ async function handleHlsDiscovery(tabId, reqUrl, initiatorUrl, sentHeaders, onMe
   try {
     const browserHeaders = extractBrowserOnlyHeaders(sentHeaders);
     ruleIds = await addSessionHeaderRules([reqUrl.href], browserHeaders);
-    const resp = await fetch(reqUrl.href, { cache: "force-cache" });
-    if (!resp.ok) return;
+    // Repassa também cabeçalhos customizados da página (ex.: token `content`, `x-content-uri`)
+    const resp = await fetch(reqUrl.href, {
+      cache: "force-cache",
+      headers: buildFetchHeaders(sentHeaders, reqUrl)
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const text = await resp.text();
     const parsed = parseM3u8Manifest(text, reqUrl.href);
     if (!parsed) return;

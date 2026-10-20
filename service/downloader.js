@@ -6,6 +6,7 @@
 
 import { CHANNELS, Some, None, isOption, serialize } from "./serde.js";
 import { cloneHeaders, prepareDownloadDnrRules, removeSessionHeaderRules } from "./dnr_headers.js";
+import { hasPerRequestHeaders } from "./per_request_headers.js";
 
 const workerBus = new BroadcastChannel("worker_service");
 const pendingFilenameOverrides = new Map(); // blobUrl -> targetFilename
@@ -318,12 +319,15 @@ export function buildDownloadArgs(media, options = {}) {
   // 3. HLS Media Playlist única (m3u8)
   if (media.type === "m3u8") {
     const streamUrl = ensureUrlObject(media.url || media.master_url);
+    // O demuxer HLS nativo do LibAV (jsfetch) não envia cabeçalhos por requisição;
+    // nesse caso usa-se o motor HLS em JS (suporta AES-128 e cabeçalhos customizados).
+    const useJsfetch = !hasPerRequestHeaders(headers);
     if (audioOnly) {
       return {
         save_as: saveAs,
         subdir: normalizedSubdir,
         duration: media.duration,
-        will_use_jsfetch: true,
+        will_use_jsfetch: useJsfetch,
         download_id: downloadId,
         headers,
         strategy: "m3u8_audio_only",
@@ -345,7 +349,7 @@ export function buildDownloadArgs(media, options = {}) {
       headers,
       subdir: normalizedSubdir,
       duration: media.duration,
-      will_use_jsfetch: true,
+      will_use_jsfetch: useJsfetch,
       save_as: saveAs,
       strategy: "m3u8_audio_video_one_source",
       muxer,

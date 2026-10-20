@@ -23,12 +23,15 @@ video_grab/
 │   ├── serde.js                  # Serializador/Deserializador compatível com o worker (__serde_tag) e tipos Option/Result
 │   ├── sniffer.js                # Interceptador webRequest para HTTP, HLS (.m3u8) e DASH (.mpd)
 │   ├── dnr_headers.js            # Injeção dinâmica de cabeçalhos via declarativeNetRequest
+│   ├── per_request_headers.js    # Cabeçalhos recalculados por URL (ex.: x-content-uri); sem chrome.*, compartilhado com o worker
 │   └── downloader.js             # Orquestrador de tarefas de download, ponte com o Worker e salvamento
 ├── factory/                      # Documento Offscreen (chrome.offscreen)
 │   ├── factory.html              # Documento hospedeiro do Web Worker e do Sandbox
 │   ├── factory.js                # Inicializador do download_worker e ponte BroadcastChannel
 │   └── sandbox.html              # Iframe isolado (CSP permissivo) para avaliação de ciphers dinâmicos
 ├── download_worker/              # Motor de processamento de mídia em WebAssembly
+│   ├── bootstrap.js              # Entrada do Worker: instala fetch_hooks.js e depois carrega main.js
+│   ├── fetch_hooks.js            # Wrapper de fetch que aplica cabeçalhos por requisição
 │   ├── main.js                   # Web Worker com as 16 estratégias de muxing/download
 │   ├── libav-6.5.7.1-h264-aac-mp3.wasm.mjs # Wrapper JS do FFmpeg/LibAV
 │   └── libav-6.5.7.1-h264-aac-mp3.wasm.wasm# Binário WebAssembly do FFmpeg/LibAV
